@@ -1,5 +1,5 @@
 /*
-    https://www.codewars.com/kata/solutions/cpp
+    https://www.codewars.com/kata/5d49c93d089c6e000ff8428c/cpp
 */
 #include <vector>
 int save(std::vector<int> sizes, int hd) {
