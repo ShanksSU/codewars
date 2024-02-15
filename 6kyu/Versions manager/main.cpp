@@ -3,6 +3,7 @@
 */
 #include <string>
 #include <string_view>
+#include <regex>
 
 class VersionManager {
 public:
@@ -19,27 +20,15 @@ private:
 };  
 
 VersionManager::VersionManager(std::string_view version) {
+    static const std::regex versionR{ R"(^(\d+)(?:\.(\d+)|$)(?:\.(\d+)|$))" };
     str = version.empty() ? "0.0.1" : version;
-    std::string s;
-    std::stringstream ss(str);
-    std::vector<std::string> tmp;
-    while (getline(ss, s, '.')) {
-        tmp.push_back(s);
+    std::smatch match;
+    if (!std::regex_search(str.cbegin(), str.cend() - (str.back() == '.'), match, versionR)) {
+        throw VersionException{ "Error occured while parsing version!" };
     }
-        
-    try {
-        major_num = stoi(tmp[0]);
-        if (tmp.size() == 2) {
-            minor_num = stoi(tmp[1]);
-        }
-        if (tmp.size() >= 3) {
-            minor_num = stoi(tmp[1]);
-            patch_num = stoi(tmp[2]);
-        }
-    }
-    catch (...) {
-        throw VersionException("Error occured while parsing version!");
-    }
+    major_num = std::stoul(match.str(1));
+    minor_num = match.length(2) ? std::stoul(match.str(2)) : 0;
+    patch_num = match.length(3) ? std::stoul(match.str(3)) : 0;
 }
 
 VersionManager& VersionManager::major() {
